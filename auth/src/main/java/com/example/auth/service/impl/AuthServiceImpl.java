@@ -1,12 +1,10 @@
 package com.example.auth.service.impl;
 
 import com.example.auth.config.JwtService;
-import com.example.auth.exceptions.ConflictException;
-import com.example.auth.exceptions.CustomBadRequestException;
-import com.example.auth.exceptions.NoLongerExistsException;
-import com.example.auth.exceptions.NotFoundException;
+import com.example.auth.exceptions.*;
 import com.example.auth.models.dto.AuthenticationRequest;
 import com.example.auth.models.dto.AuthenticationResponse;
+import com.example.auth.models.dto.CustomValidationErrorDto;
 import com.example.auth.models.dto.RegisterRequest;
 import com.example.auth.models.entity.EmailVerificationToken;
 import com.example.auth.models.entity.Role;
@@ -16,6 +14,7 @@ import com.example.auth.repository.RoleRepository;
 import com.example.auth.repository.UserRepository;
 import com.example.auth.service.AuthService;
 import com.example.auth.service.EmailVerificationService;
+import com.example.auth.validator.CustomValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -38,9 +38,17 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final CustomValidator<RegisterRequest> customValidator;
 
     @Override
     public String authRegister(RegisterRequest registerData) {
+        List<CustomValidationErrorDto> validate = customValidator.validate(registerData);
+
+        if (!validate.isEmpty()) {
+            System.out.println(validate);
+            throw new DefaultValidationException("DSDW");
+        }
+
         Role role = new Role();
         role.setName("USER");
         roleRepository.save(role);
