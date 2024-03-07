@@ -14,6 +14,7 @@ import com.example.auth.repository.RoleRepository;
 import com.example.auth.repository.UserRepository;
 import com.example.auth.service.AuthService;
 import com.example.auth.service.EmailVerificationService;
+import com.example.auth.validator.AuthValidator;
 import com.example.auth.validator.CustomValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -38,17 +38,12 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
-    private final CustomValidator<RegisterRequest> customValidator;
+    private final AuthValidator<RegisterRequest> registerValidator;
 
     @Override
     public String authRegister(RegisterRequest registerData) {
-        List<CustomValidationErrorDto> validate = customValidator.validate(registerData);
-
-        if (!validate.isEmpty()) {
-            System.out.println(validate);
-            throw new DefaultValidationException("DSDW");
-        }
-
+        registerValidator.authRegisterValidate(registerData);
+        // TODO: send mail, tests, complete all TODO, and other
         Role role = new Role();
         role.setName("USER");
         roleRepository.save(role);

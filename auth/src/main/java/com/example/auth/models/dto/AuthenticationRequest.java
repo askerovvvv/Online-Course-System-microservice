@@ -1,22 +1,18 @@
 package com.example.auth.models.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class AuthenticationRequest {
-
-    @Email(message = "Please enter the correct email format.")
-    private String email;
+public class AuthenticationRequest extends BaseAuthRequest {
 
     @NotEmpty(message = "Password can not be empty.")
     private String password;
 
 }
+
