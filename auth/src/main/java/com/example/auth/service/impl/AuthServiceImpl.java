@@ -32,7 +32,6 @@ import java.util.List;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final EmailVerificationRepository verificationRepository;
 
     private final RoleService roleService;
     private final EmailVerificationService verificationService;
@@ -60,8 +59,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String confirmAccount(String token) {
-        EmailVerificationToken verificationToken = verificationRepository.findByToken(token)
-                .orElseThrow(() -> new NotFoundException("Account not found!"));
+        EmailVerificationToken verificationToken = verificationService.getByToken(token);
 
         if (verificationToken.getConfirmedAt() != null) {
             throw new ConflictException("Account has already been confirmed!");
@@ -70,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
         LocalDateTime expiresAt = verificationToken.getExpiresAt();
         if (expiresAt.isBefore(LocalDateTime.now())) {
             userRepository.delete(verificationToken.getUser());
-            verificationRepository.delete(verificationToken);
+            verificationService.deleteToken(verificationToken);
             throw new NoLongerExistsException("Token has already expired! Please register again.");
         }
 
@@ -82,7 +80,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest authenticateData) {
-
         try {
             authenticateUser(authenticateData);
         } catch (BadCredentialsException exception) {
@@ -106,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
 
     private User createUser(RegisterRequest registerData) {
         Role role = roleService.getRoleByName("ROLE_USER");
-        // TODO: create role service and move role rep
+
         return User.builder()
                 .firstname(registerData.getFirstname())
                 .lastname(registerData.getLastname())

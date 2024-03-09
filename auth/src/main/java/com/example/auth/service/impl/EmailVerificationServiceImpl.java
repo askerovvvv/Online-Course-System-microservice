@@ -19,8 +19,6 @@ import java.util.UUID;
 public class EmailVerificationServiceImpl implements EmailVerificationService {
 
     private final EmailVerificationRepository verificationRepository;
-    private final UserRepository userRepository;
-
 
     @Override
     public int setConfirmedAt(String token) {
@@ -40,6 +38,17 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
         verificationRepository.save(emailVerificationToken);
 
         return emailVerificationToken;
+    }
+
+    @Override
+    public EmailVerificationToken getByToken(String token) {
+        return verificationRepository.findByToken(token)
+                .orElseThrow(() -> new NotFoundException("Account not found!"));
+    }
+
+    @Override
+    public void deleteToken(EmailVerificationToken verificationToken) {
+        verificationRepository.delete(verificationToken);
     }
 }
 
