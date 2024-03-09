@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -19,7 +20,7 @@ public class JwtService {
     private static final String SECRET_KEY = "f065f63c91e35cf6e5bdbca7df3bfea34ff06031082f55f662621c63d0e427da";
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(userDetails);
+        return generateToken(userDetails, new HashMap<>());
     }
 
     public String generateToken(UserDetails userDetails, Map<String, Objects> extraClaims) {

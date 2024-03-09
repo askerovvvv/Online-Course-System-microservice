@@ -17,10 +17,6 @@ public class AuthValidator<T extends BaseAuthRequest> extends CustomValidator<T>
 
     private final UserRepository userRepository;
 
-    public boolean userExists(String email) {
-        return userRepository.findByEmail(email).isPresent();
-    }
-
     public void authRegisterValidate(T authObject) {
         List<CustomValidationErrorDto> fieldsError = super.validate(authObject);
 
@@ -28,9 +24,13 @@ public class AuthValidator<T extends BaseAuthRequest> extends CustomValidator<T>
             throw new DefaultValidationException("Validation error!", fieldsError);
         }
 
-        if (!userExists(authObject.getEmail())) {
+        if (userExists(authObject.getEmail())) {
             throw new CustomBadRequestException("This user already exists");
         }
 
+    }
+
+    public boolean userExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 }

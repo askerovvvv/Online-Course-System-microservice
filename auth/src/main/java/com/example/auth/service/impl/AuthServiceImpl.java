@@ -4,18 +4,16 @@ import com.example.auth.config.JwtService;
 import com.example.auth.exceptions.*;
 import com.example.auth.models.dto.AuthenticationRequest;
 import com.example.auth.models.dto.AuthenticationResponse;
-import com.example.auth.models.dto.CustomValidationErrorDto;
 import com.example.auth.models.dto.RegisterRequest;
 import com.example.auth.models.entity.EmailVerificationToken;
-import com.example.auth.models.entity.Role;
 import com.example.auth.models.entity.User;
 import com.example.auth.repository.EmailVerificationRepository;
 import com.example.auth.repository.RoleRepository;
 import com.example.auth.repository.UserRepository;
 import com.example.auth.service.AuthService;
+import com.example.auth.service.EmailSender;
 import com.example.auth.service.EmailVerificationService;
 import com.example.auth.validator.AuthValidator;
-import com.example.auth.validator.CustomValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -39,26 +38,19 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final AuthValidator<RegisterRequest> registerValidator;
+    private final EmailSender emailSender;
 
     @Override
     public String authRegister(RegisterRequest registerData) {
+        // TODO: complete all TODO, and other
         registerValidator.authRegisterValidate(registerData);
-        // TODO: send mail, tests, complete all TODO, and other
-        Role role = new Role();
-        role.setName("USER");
-        roleRepository.save(role);
 
-        User user = User.builder()
-                .firstname(registerData.getFirstname())
-                .lastname(registerData.getLastname())
-                .email(registerData.getEmail())
-                .role(new HashSet<>())
-                .password(passwordEncoder.encode(registerData.getPassword()))
-                .build();
-
-
-        user.getRole().add(role);
+        User user = createUser(registerData);
         userRepository.save(user);
+
+        EmailVerificationToken verificationToken = verificationService.createToken(user);
+        String link = "http://localhost:8090/api/v1/auth/confirm?token=" + verificationToken.getToken();
+        emailSender.send(registerData.getEmail(), emailSender.buildEmail(registerData.getFirstname(), link));
 
         return "Registered";
     }
@@ -95,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
                             requestData.getPassword()
                     )
             );
-        } catch (BadCredentialsException exception) {
+        } catch (BadCredentialsException exception) { // TODO: что за исключение юзенр не активен или пароль невкерен
             throw new CustomBadRequestException("Wrong login or password!");
         }
         User user = userRepository.findByEmail(requestData.getEmail())
@@ -115,4 +107,18 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
     }
+
+    private User createUser(RegisterRequest registerData) {
+//        Role role = roleRepository.findByName("ROLE_USER").get();
+
+        return User.builder()
+                .firstname(registerData.getFirstname())
+                .lastname(registerData.getLastname())
+                .email(registerData.getEmail())
+                .role(new HashSet<>(List.of()))
+                .password(passwordEncoder.encode(registerData.getPassword()))
+                .emailVerified(false)
+                .build();
+    }
+
 }
