@@ -1,6 +1,8 @@
 package com.example.auth.service.impl;
 
 import com.example.auth.config.JwtService;
+import com.example.auth.exceptions.ConflictException;
+import com.example.auth.exceptions.NoLongerExistsException;
 import com.example.auth.models.dto.AuthenticationRequest;
 import com.example.auth.models.dto.AuthenticationResponse;
 import com.example.auth.models.dto.RegisterRequest;
@@ -67,18 +69,20 @@ class AuthServiceImplTest {
     @Test
     void testRegister_Success() {
         // Given
-        RegisterRequest registerData = new RegisterRequest();
-        registerData.setFirstname("test name");
-        registerData.setEmail("test@example.com");
+        RegisterRequest registerData = RegisterRequest.builder()
+                .firstname("test name")
+                .email("test@example.com")
+                .build();
 
         Role mockRole = new Role();
         EmailVerificationToken mockVerificationToken = new EmailVerificationToken();
 
-        User mockUser = new User();
-        mockUser.setFirstname("test name");
-        mockUser.setEmail("test@example.com");
-        mockUser.setEmailVerified(false);
-        mockUser.setRole(new HashSet<>(List.of(mockRole)));
+        User mockUser = User.builder()
+                .firstname("test name")
+                .email("test@example.com")
+                .emailVerified(false)
+                .role(new HashSet<>(List.of(mockRole)))
+                .build();
 
 
         // Mock actions
@@ -124,11 +128,12 @@ class AuthServiceImplTest {
         String token = "jwt token";
         User mockUser = new User();
 
-        EmailVerificationToken mockVerificationToken = new EmailVerificationToken();
-        mockVerificationToken.setToken("jwt token");
-        mockVerificationToken.setCreatedAt(LocalDateTime.now());
-        mockVerificationToken.setExpiresAt(LocalDateTime.now().plusMinutes(20));
-        mockVerificationToken.setUser(mockUser);
+        EmailVerificationToken mockVerificationToken = EmailVerificationToken.builder()
+                .user(mockUser)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(20))
+                .token("jwt token")
+                .build();
 
         // Mock actions
         when(verificationService.getByToken(token)).thenReturn(mockVerificationToken);
@@ -144,7 +149,57 @@ class AuthServiceImplTest {
         verify(userRepository, times(1)).updateUserEmailVerified(any());
         verify(userRepository, never()).delete(any());
         verify(verificationService, never()).deleteToken(any());
+    }
 
+    @Test
+    void testConfirmAccount_AlreadyConfirmed() {
+        // Given
+        String token = "jwt token";
+        User mockUser = new User();
+
+        EmailVerificationToken mockVerificationToken = EmailVerificationToken.builder()
+                .user(mockUser)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(20))
+                .confirmedAt(LocalDateTime.now().plusMinutes(10))
+                .token("jwt token")
+                .build();
+
+        // Mock actions
+        when(verificationService.getByToken(token)).thenReturn(mockVerificationToken);
+
+        // Then
+        assertThrows(ConflictException.class, () -> mockAuthService.confirmAccount(token));
+
+        verify(verificationService, never()).setConfirmedAt(token);
+        verify(userRepository, never()).updateUserEmailVerified(any());
+        verify(userRepository, never()).delete(any());
+        verify(verificationService, never()).deleteToken(any());
+    }
+
+    @Test
+    void testConfirmAccount_TokenExpired() {
+        // Given
+        String token = "jwt token";
+        User mockUser = new User();
+
+        EmailVerificationToken mockVerificationToken = EmailVerificationToken.builder()
+                .user(mockUser)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().minusMinutes(20))
+                .token("jwt token")
+                .build();
+
+        // Mock actions
+        when(verificationService.getByToken(token)).thenReturn(mockVerificationToken);
+
+        // Then
+        assertThrows(NoLongerExistsException.class, () -> mockAuthService.confirmAccount(token));
+
+        verify(verificationService, never()).setConfirmedAt(token);
+        verify(userRepository, never()).updateUserEmailVerified(any());
+        verify(userRepository, times(1)).delete(any());
+        verify(verificationService, times(1)).deleteToken(any());
     }
 
 }
