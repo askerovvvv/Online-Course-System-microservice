@@ -20,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +30,6 @@ import static org.mockito.Mockito.*;
 
 class AuthServiceImplTest {
 
-    @Mock
-    private EmailVerificationRepository verificationRepository;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -55,7 +54,6 @@ class AuthServiceImplTest {
         MockitoAnnotations.openMocks(this);
         mockAuthService = new AuthServiceImpl(
                 userRepository,
-                verificationRepository,
                 roleService,
                 verificationService,
                 jwtService,
@@ -68,20 +66,20 @@ class AuthServiceImplTest {
 
     @Test
     void testRegister_Success() {
-        // given
-
+        // Given
         RegisterRequest registerData = new RegisterRequest();
         registerData.setFirstname("test name");
         registerData.setEmail("test@example.com");
 
         Role mockRole = new Role();
+        EmailVerificationToken mockVerificationToken = new EmailVerificationToken();
 
         User mockUser = new User();
         mockUser.setFirstname("test name");
         mockUser.setEmail("test@example.com");
         mockUser.setEmailVerified(false);
         mockUser.setRole(new HashSet<>(List.of(mockRole)));
-        EmailVerificationToken mockVerificationToken = new EmailVerificationToken();
+
 
         // Mock actions
         when(roleService.getRoleByName(anyString())).thenReturn(mockRole);
@@ -89,10 +87,10 @@ class AuthServiceImplTest {
         when(verificationService.createToken(any(User.class))).thenReturn(mockVerificationToken);
         when(emailSender.buildEmail(anyString(), anyString())).thenReturn("someValue");
 
-        // when
+        // When
         String actualResponse = mockAuthService.authRegister(registerData);
 
-        // then
+        // Then
         verify(userRepository, times(1)).save(mockUser);
         verify(emailSender).send(eq("test@example.com"), anyString());
         assertEquals("Registered", actualResponse);
@@ -100,7 +98,7 @@ class AuthServiceImplTest {
 
     @Test
     void testAuthenticate_Success() {
-        // given
+        // Given
         AuthenticationRequest authenticateData = new AuthenticationRequest();
         authenticateData.setEmail("test@example.com");
         authenticateData.setPassword("password");
@@ -108,16 +106,45 @@ class AuthServiceImplTest {
         User mockUser = new User();
         mockUser.setFirstname("test name");
 
-        // mock actions
+        // Mock actions
         when(authenticationManager.authenticate(any())).thenReturn(null);
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(mockUser));
         when(jwtService.generateToken(mockUser)).thenReturn("Generated token");
 
-        // when
+        // When
         AuthenticationResponse actualResponse = mockAuthService.authenticate(authenticateData);
 
-        // then
+        // Then
         assertEquals("Generated token", actualResponse.getToken());
+    }
+
+    @Test
+    void testConfirmAccount_Success() {
+        // Given
+        String token = "jwt token";
+        User mockUser = new User();
+
+        EmailVerificationToken mockVerificationToken = new EmailVerificationToken();
+        mockVerificationToken.setToken("jwt token");
+        mockVerificationToken.setCreatedAt(LocalDateTime.now());
+        mockVerificationToken.setExpiresAt(LocalDateTime.now().plusMinutes(20));
+        mockVerificationToken.setUser(mockUser);
+
+        // Mock actions
+        when(verificationService.getByToken(token)).thenReturn(mockVerificationToken);
+        when(verificationService.setConfirmedAt(token)).thenReturn(1);
+        when(userRepository.updateUserEmailVerified(any())).thenReturn(1);
+
+        // When
+        String actualResponse = mockAuthService.confirmAccount(token);
+
+        // Then
+        assertEquals("Your account has been successfully verified!", actualResponse);
+        verify(verificationService, times(1)).setConfirmedAt(token);
+        verify(userRepository, times(1)).updateUserEmailVerified(any());
+        verify(userRepository, never()).delete(any());
+        verify(verificationService, never()).deleteToken(any());
+
     }
 
 }
