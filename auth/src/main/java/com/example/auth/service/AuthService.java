@@ -8,5 +8,5 @@ public interface AuthService {
 
     String authRegister(RegisterRequest registerData);
     String confirmAccount(String token);
-    AuthenticationResponse authenticate(AuthenticationRequest requestData);
+    AuthenticationResponse authenticate(AuthenticationRequest authenticateData);
 }

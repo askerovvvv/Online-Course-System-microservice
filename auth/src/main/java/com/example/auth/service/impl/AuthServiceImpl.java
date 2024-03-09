@@ -6,6 +6,7 @@ import com.example.auth.models.dto.AuthenticationRequest;
 import com.example.auth.models.dto.AuthenticationResponse;
 import com.example.auth.models.dto.RegisterRequest;
 import com.example.auth.models.entity.EmailVerificationToken;
+import com.example.auth.models.entity.Role;
 import com.example.auth.models.entity.User;
 import com.example.auth.repository.EmailVerificationRepository;
 import com.example.auth.repository.RoleRepository;
@@ -13,12 +14,12 @@ import com.example.auth.repository.UserRepository;
 import com.example.auth.service.AuthService;
 import com.example.auth.service.EmailSender;
 import com.example.auth.service.EmailVerificationService;
+import com.example.auth.service.RoleService;
 import com.example.auth.validator.AuthValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,15 +31,17 @@ import java.util.List;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final EmailVerificationRepository verificationRepository;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final EmailVerificationRepository verificationRepository;
+
+    private final RoleService roleService;
     private final EmailVerificationService verificationService;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthValidator<RegisterRequest> registerValidator;
+
     private final EmailSender emailSender;
+    private final AuthValidator<RegisterRequest> registerValidator;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public String authRegister(RegisterRequest registerData) {
@@ -78,44 +81,37 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthenticationResponse authenticate(AuthenticationRequest requestData) {
+    public AuthenticationResponse authenticate(AuthenticationRequest authenticateData) {
 
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            requestData.getEmail(),
-                            requestData.getPassword()
-                    )
-            );
-        } catch (BadCredentialsException exception) { // TODO: что за исключение юзенр не активен или пароль невкерен
+            authenticateUser(authenticateData);
+        } catch (BadCredentialsException exception) {
             throw new CustomBadRequestException("Wrong login or password!");
         }
-        User user = userRepository.findByEmail(requestData.getEmail())
+        User user = userRepository.findByEmail(authenticateData.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found!"));
         String jwtToken = jwtService.generateToken(user);
 
         return new AuthenticationResponse(jwtToken);
     }
 
-
-    // TODO: think how to improve (try)
-    private Authentication authenticateUser(AuthenticationRequest requestData) {
-        return authenticationManager.authenticate(
+    private void authenticateUser(AuthenticationRequest authenticateData) {
+        authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        requestData.getEmail(),
-                        requestData.getPassword()
+                        authenticateData.getEmail(),
+                        authenticateData.getPassword()
                 )
         );
     }
 
     private User createUser(RegisterRequest registerData) {
-//        Role role = roleRepository.findByName("ROLE_USER").get();
-
+        Role role = roleService.getRoleByName("ROLE_USER");
+        // TODO: create role service and move role rep
         return User.builder()
                 .firstname(registerData.getFirstname())
                 .lastname(registerData.getLastname())
                 .email(registerData.getEmail())
-                .role(new HashSet<>(List.of()))
+                .role(new HashSet<>(List.of(role)))
                 .password(passwordEncoder.encode(registerData.getPassword()))
                 .emailVerified(false)
                 .build();
