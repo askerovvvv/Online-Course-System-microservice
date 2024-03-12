@@ -22,6 +22,6 @@ public class Category {
             sequenceName = "category_sequence",
             allocationSize = 1
     )
-    private Long id;
+    private Integer id;
     private String name;
 }
