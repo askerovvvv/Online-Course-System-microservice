@@ -27,11 +27,7 @@ public class Course {
     // CourseImg TODO:
     private String description;
     private Long teacherId;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(
-            name = "category_id",
-            referencedColumnName = "id"
-    )
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     private Category category;
-
 }

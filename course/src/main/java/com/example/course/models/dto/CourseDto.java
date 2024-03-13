@@ -17,5 +17,5 @@ public class CourseDto {
     private String title;
     private String description;
     private Long teacherId;
-    private String category;
+    private Integer categoryId;
 }
