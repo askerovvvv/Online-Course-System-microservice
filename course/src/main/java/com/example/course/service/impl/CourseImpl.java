@@ -6,6 +6,7 @@ import com.example.course.exceptions.HttpRequestException;
 import com.example.course.exceptions.NotFoundException;
 import com.example.course.mapper.CourseMapper;
 import com.example.course.models.Course;
+import com.example.course.models.dto.CategoryDto;
 import com.example.course.models.dto.CourseDto;
 import com.example.course.models.dto.UserDto;
 import com.example.course.repository.CourseRepository;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -27,33 +29,45 @@ public class CourseImpl implements CourseService {
 
 
     @Override
+    public List<CourseDto> getAllCourses() {
+        return CourseMapper.INSTANCE.toCourseDtoList(courseRepository.findAll());
+    }
+
+    @Override
+    public CourseDto getCourseById(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Course not found!"));
+        return CourseMapper.INSTANCE.toCourseDto(course);
+    }
+
+    @Override
     public CourseDto addCourse(CourseDto courseData) {
         try {
             UserDto userDto = courseUserClient.getUserById(courseData.getTeacherId());
             if (!userDto.getEmailVerified()) {
                 throw new CustomBadRequestException("The user you specified as a teacher is inactive!");
             }
+
+            CategoryDto categoryDto = categoryService.getCategoryById(courseData.getCategoryId());
             Course course = CourseMapper.INSTANCE.toCourse(courseData);
-            if (!categoryService.ifCategoryExists(courseData.getCategory())) {
-                throw new NotFoundException("Category with this name is not found!");
-            };
 
             courseRepository.save(course);
         } catch (FeignException e) {
-            throw new HttpRequestException(e.getMessage());
-        }
+            // TODO: обработать нормально
+            throw new HttpRequestException(e.getMessage() + " в сервис auth");
 
+        }
 
         return courseData;
     }
 
     @Override
-    public List<CourseDto> getAllCourses() {
-        return null;
+    public void deleteCourse(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Course not found!"));
+
+        courseRepository.delete(course);
     }
 
-    @Override
-    public CourseDto getById(Long id) {
-        return null;
-    }
+    // TODO: update TEACHER logic
 }
