@@ -121,6 +121,7 @@ class CourseImplTest {
         // Mock actions
         when(courseRepository.findById(any())).thenReturn(Optional.of(mockCourse));
 
+        // When
         mockCourseService.deleteCourse(1L);
 
         // Then
@@ -129,7 +130,6 @@ class CourseImplTest {
 
     @Test
     void testDeleteCourse_NotFound_Failed() {
-
         // Mock actions
         when(courseRepository.findById(any())).thenReturn(Optional.empty());
 
