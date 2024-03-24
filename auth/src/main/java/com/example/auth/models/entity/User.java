@@ -39,6 +39,11 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private Boolean emailVerified;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_image_id")
+    private UserImage userImage;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_roles",
