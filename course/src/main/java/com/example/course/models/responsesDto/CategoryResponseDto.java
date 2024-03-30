@@ -1,4 +1,4 @@
-package com.example.course.models.dto;
+package com.example.course.models.responsesDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

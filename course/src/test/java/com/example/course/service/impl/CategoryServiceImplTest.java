@@ -2,7 +2,7 @@ package com.example.course.service.impl;
 
 import com.example.course.exceptions.NotFoundException;
 import com.example.course.models.Category;
-import com.example.course.models.dto.CategoryDto;
+import com.example.course.models.responsesDto.CategoryResponseDto;
 import com.example.course.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,11 +40,11 @@ class CategoryServiceImplTest {
         when(categoryRepository.save(any(Category.class))).thenReturn(mockCategory);
 
         // When
-        CategoryDto actualResult = mockCategoryService.addCategory(new CategoryDto());
+        CategoryResponseDto actualResult = mockCategoryService.addCategory(new CategoryResponseDto());
 
         // Then
         verify(categoryRepository, times(1)).save(any(Category.class));
-        assertInstanceOf(CategoryDto.class, actualResult);
+        assertInstanceOf(CategoryResponseDto.class, actualResult);
     }
 
     @Test
@@ -61,7 +61,7 @@ class CategoryServiceImplTest {
 
 
         // When
-        List<CategoryDto> actualResult = mockCategoryService.getAllCategories();
+        List<CategoryResponseDto> actualResult = mockCategoryService.getAllCategories();
 
         // Then
         assertEquals(mockCategories.size(), actualResult.size());
@@ -76,11 +76,11 @@ class CategoryServiceImplTest {
         when(categoryRepository.findById(any())).thenReturn(Optional.of(mockCategory));
 
         // When
-        CategoryDto actualResult = mockCategoryService.getCategoryDtoById(1);
+        CategoryResponseDto actualResult = mockCategoryService.getCategoryDtoById(1);
 
         // Then
         assertNotNull(actualResult);
-        assertInstanceOf(CategoryDto.class, actualResult);
+        assertInstanceOf(CategoryResponseDto.class, actualResult);
     }
 
     @Test

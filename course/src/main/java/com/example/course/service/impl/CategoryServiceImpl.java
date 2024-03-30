@@ -4,7 +4,7 @@ import com.example.course.exceptions.CustomBadRequestException;
 import com.example.course.exceptions.NotFoundException;
 import com.example.course.mapper.CategoryMapper;
 import com.example.course.models.Category;
-import com.example.course.models.dto.CategoryDto;
+import com.example.course.models.responsesDto.CategoryResponseDto;
 import com.example.course.repository.CategoryRepository;
 import com.example.course.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public CategoryDto addCategory(CategoryDto categoryData) {
+    public CategoryResponseDto addCategory(CategoryResponseDto categoryData) {
         if (categoryRepository.existsByName(categoryData.getName())) {
             throw new CustomBadRequestException("Such a category already exists!");
         }
@@ -30,12 +30,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryDto> getAllCategories() {
+    public List<CategoryResponseDto> getAllCategories() {
         return CategoryMapper.INSTANCE.toCategoryDtoList(categoryRepository.findAll());
     }
 
     @Override
-    public CategoryDto getCategoryDtoById(int id) {
+    public CategoryResponseDto getCategoryDtoById(int id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category not found!"));
         return CategoryMapper.INSTANCE.toCategoryDto(category);
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void updateCategory(int id, CategoryDto categoryData) {
+    public void updateCategory(int id, CategoryResponseDto categoryData) {
         // TODO: update
     }
 
@@ -65,7 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getCategoryByName(String name) {
+    public CategoryResponseDto getCategoryByName(String name) {
         Category category = categoryRepository.findByName(name)
                 .orElseThrow(() -> new NotFoundException("Category not found!"));
         return CategoryMapper.INSTANCE.toCategoryDto(category);

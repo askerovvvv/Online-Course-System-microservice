@@ -3,7 +3,7 @@ package com.example.course.service.impl;
 import com.example.course.exceptions.CustomBadRequestException;
 import com.example.course.mapper.AuthorMapper;
 import com.example.course.models.Author;
-import com.example.course.models.dto.AuthorDto;
+import com.example.course.models.responsesDto.AuthorDto;
 import com.example.course.repository.AuthorRepository;
 import com.example.course.service.AuthorService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.Objects;
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
-    // TODO: логика изменения имени, емайла автора в сервисе user
+    // TODO: логика изменения имени, емайла автора в сервисе user или удаления юзера
 
 
 

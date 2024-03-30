@@ -8,8 +8,9 @@ import com.example.course.mapper.CourseMapper;
 import com.example.course.models.Author;
 import com.example.course.models.Category;
 import com.example.course.models.Course;
-import com.example.course.models.dto.CourseDto;
-import com.example.course.models.dto.AuthorDto;
+import com.example.course.models.responsesDto.CourseResponseDto;
+import com.example.course.models.responsesDto.AuthorDto;
+import com.example.course.models.requestsDto.CourseRequestDto;
 import com.example.course.repository.CourseRepository;
 import com.example.course.service.AuthorService;
 import com.example.course.service.CategoryService;
@@ -23,24 +24,25 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class CourseImpl implements CourseService {
+public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final CategoryService categoryService;
     private final CourseUserClient courseUserClient;
     private final AuthorService authorService;
 
+    // TODO: send email(something added/ deleted to all authors of courses ot students)
 
     @Override
-    public List<CourseDto> findAllCourses() {
+    public List<CourseResponseDto> findAllCourses() {
         return CourseMapper.INSTANCE.toCourseDtoList(courseRepository.findAll());
     }
 
     @Override
-    public CourseDto addCourse(CourseDto courseData) {
+    public CourseResponseDto addCourse(CourseRequestDto courseData) {
         // TODO:  в запросе передать Principal principal
         try {
-            AuthorDto authorDto = courseUserClient.getUserById(courseData.getTeacherId());
+            AuthorDto authorDto = courseUserClient.getUserById(courseData.getAuthorId());
             if (!authorDto.getEmailVerified()) {
                 throw new CustomBadRequestException("The user you specified as a teacher is inactive!");
             }
@@ -50,15 +52,15 @@ public class CourseImpl implements CourseService {
             Course course = createCourse(courseData, author, category);
 
             courseRepository.save(course);
+            return CourseMapper.INSTANCE.toCourseDto(course);
         } catch (FeignException e) {
             // TODO: обработать нормально
             throw new HttpRequestException(e.getMessage() + " в сервис auth");
         }
 
-        return courseData;
     }
 
-    private Course createCourse(CourseDto courseData, Author author, Category category) {
+    private Course createCourse(CourseRequestDto courseData, Author author, Category category) {
         Course course = CourseMapper.INSTANCE.toCourse(courseData);
         course.setAuthors(new ArrayList<>(List.of(author)));
         course.setCategory(category);
@@ -86,7 +88,7 @@ public class CourseImpl implements CourseService {
     }
 
     @Override
-    public CourseDto findCourseDtoById(Long courseId) {
+    public CourseResponseDto findCourseDtoById(Long courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found!"));
         return CourseMapper.INSTANCE.toCourseDto(course);

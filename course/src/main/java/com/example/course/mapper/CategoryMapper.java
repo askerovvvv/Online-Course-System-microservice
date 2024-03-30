@@ -1,9 +1,7 @@
 package com.example.course.mapper;
 
 import com.example.course.models.Category;
-import com.example.course.models.Course;
-import com.example.course.models.dto.CategoryDto;
-import com.example.course.models.dto.CourseDto;
+import com.example.course.models.responsesDto.CategoryResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -14,10 +12,10 @@ import java.util.List;
 public interface CategoryMapper {
     CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
 
-    Category toCategory(CategoryDto categoryDto);
-    CategoryDto toCategoryDto(Category category);
+    Category toCategory(CategoryResponseDto categoryResponseDto);
+    CategoryResponseDto toCategoryDto(Category category);
 
-    List<CategoryDto> toCategoryDtoList(List<Category> categories);
-    List<Category> toCategoryList(List<CategoryDto> categoryDtos);
+    List<CategoryResponseDto> toCategoryDtoList(List<Category> categories);
+    List<Category> toCategoryList(List<CategoryResponseDto> categoryResponseDtos);
 
 }
