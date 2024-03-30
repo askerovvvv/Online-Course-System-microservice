@@ -58,7 +58,7 @@ class CourseImplTest {
         when(courseRepository.findAll()).thenReturn(mockCourses);
 
         // When
-        List<CourseDto> actualResult = mockCourseService.getAllCourses();
+        List<CourseDto> actualResult = mockCourseService.findAllCourses();
 
         // Then
         assertEquals(2, actualResult.size());
@@ -74,7 +74,7 @@ class CourseImplTest {
         when(courseRepository.findById(any())).thenReturn(Optional.of(mockCourse));
 
         // When
-        CourseDto actualResult = mockCourseService.getCourseById(1L);
+        CourseDto actualResult = mockCourseService.findCourseDtoById(1L);
 
         // Then
         assertNotNull(actualResult);
@@ -87,7 +87,7 @@ class CourseImplTest {
         when(courseRepository.findById(any())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(NotFoundException.class, () -> mockCourseService.getCourseById(1L));
+        assertThrows(NotFoundException.class, () -> mockCourseService.findCourseDtoById(1L));
     }
 
     @Test
@@ -105,7 +105,7 @@ class CourseImplTest {
         // Mock actions
         when(courseUserClient.getUserById(1L)).thenReturn(mockAuthorDto);
         when(categoryService.getCategoryById(2)).thenReturn(mockCategory);
-        when(authorService.findAuthorByEmail(mockAuthorDto)).thenReturn(new Author());
+        when(authorService.findAuthorByEmailOrCreate(mockAuthorDto)).thenReturn(new Author());
         when(courseRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
@@ -159,7 +159,7 @@ class CourseImplTest {
         when(courseRepository.findById(any())).thenReturn(Optional.of(mockCourse));
 
         // When
-        mockCourseService.deleteCourse(1L);
+        mockCourseService.deleteCourseById(1L);
 
         // Then
         verify(courseRepository, times(1)).delete(mockCourse);
@@ -171,7 +171,7 @@ class CourseImplTest {
         when(courseRepository.findById(any())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(NotFoundException.class, () -> mockCourseService.deleteCourse(1L));
+        assertThrows(NotFoundException.class, () -> mockCourseService.deleteCourseById(1L));
         verify(courseRepository, never()).delete(any());
     }
 

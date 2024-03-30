@@ -1,21 +1,20 @@
 package com.example.course.models.dto;
 
-import com.example.course.models.Category;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CourseDto {
+public class CourseResponseDto {
+    private Long id;
     private String title;
     private String description;
-    private Long teacherId;
+    private List<Long> authorsId;
     private Integer categoryId;
 }

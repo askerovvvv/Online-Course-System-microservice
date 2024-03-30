@@ -1,6 +1,6 @@
 package com.example.course.controller;
 
-import com.example.course.models.dto.CategoryDto;
+import com.example.course.models.responsesDto.CategoryResponseDto;
 import com.example.course.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ public class CategoryController {
     }
 
     @PostMapping("/add/category")
-    public ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryData) {
+    public ResponseEntity<?> addCategory(@RequestBody CategoryResponseDto categoryData) {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.addCategory(categoryData));
     }
 

@@ -1,6 +1,6 @@
 package com.example.course.controller;
 
-import com.example.course.models.dto.CourseDto;
+import com.example.course.models.requestsDto.CourseRequestDto;
 import com.example.course.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ public class CourseController {
     }
 
     @PostMapping("/add/course")
-    public ResponseEntity<?> addCourse(@RequestBody CourseDto courseData) {
+    public ResponseEntity<?> addCourse(@RequestBody CourseRequestDto courseData) {
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.addCourse(courseData));
     }
 
