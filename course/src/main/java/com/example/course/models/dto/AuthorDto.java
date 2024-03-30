@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserDto {
+public class AuthorDto {
     private String firstname;
     private String lastname;
     private String email;
-    private String password;
     private Boolean emailVerified;
 }

@@ -6,6 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,8 +30,16 @@ public class Course {
     private String title;
     // CourseImg TODO:
     private String description;
-    private Long teacherId;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @ManyToMany
+    @JoinTable(
+            name = "authors_courses",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "author_id")
+    )
+    private List<Author> authors = new ArrayList<>();
 }

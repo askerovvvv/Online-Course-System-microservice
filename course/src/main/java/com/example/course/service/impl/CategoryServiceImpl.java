@@ -35,10 +35,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getCategoryById(int id) {
+    public CategoryDto getCategoryDtoById(int id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category not found!"));
         return CategoryMapper.INSTANCE.toCategoryDto(category);
+    }
+
+    @Override
+    public Category getCategoryById(int id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category not found!"));
     }
 
     @Override
