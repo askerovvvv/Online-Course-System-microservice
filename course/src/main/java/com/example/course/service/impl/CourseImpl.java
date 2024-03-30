@@ -32,15 +32,8 @@ public class CourseImpl implements CourseService {
 
 
     @Override
-    public List<CourseDto> getAllCourses() {
+    public List<CourseDto> findAllCourses() {
         return CourseMapper.INSTANCE.toCourseDtoList(courseRepository.findAll());
-    }
-
-    @Override
-    public CourseDto getCourseById(Long id) {
-        Course course = courseRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Course not found!"));
-        return CourseMapper.INSTANCE.toCourseDto(course);
     }
 
     @Override
@@ -53,7 +46,7 @@ public class CourseImpl implements CourseService {
             }
 
             Category category = categoryService.getCategoryById(courseData.getCategoryId());
-            Author author = authorService.findAuthorByEmail(authorDto);
+            Author author = authorService.findAuthorByEmailOrCreate(authorDto);
             Course course = createCourse(courseData, author, category);
 
             courseRepository.save(course);
@@ -74,12 +67,39 @@ public class CourseImpl implements CourseService {
     }
 
     @Override
-    public void deleteCourse(Long id) {
-        Course course = courseRepository.findById(id)
+    public void addAuthorToCourse(Long authorId, Long courseId) {
+        Author author = authorService.findAuthorById(authorId);
+        Course course = findCourseById(courseId);
+
+        // TODO: check if Principal in list below
+//        course.getAuthors();
+        course.getAuthors().add(author);
+
+    }
+
+    @Override
+    public void deleteCourseById(Long courseId) {
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found!"));
 
         courseRepository.delete(course);
     }
 
-    // TODO: update TEACHER logic
+    @Override
+    public CourseDto findCourseDtoById(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new NotFoundException("Course not found!"));
+        return CourseMapper.INSTANCE.toCourseDto(course);
+    }
+
+    @Override
+    public Course findCourseById(Long courseId) {
+        return courseRepository.findById(courseId)
+                .orElseThrow(() -> new NotFoundException("Course not found!"));
+    }
+
+    @Override
+    public boolean courseExistsById(Long courseId) {
+        return courseRepository.existsById(courseId);
+    }
 }

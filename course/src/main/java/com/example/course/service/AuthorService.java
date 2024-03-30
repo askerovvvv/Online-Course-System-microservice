@@ -5,6 +5,7 @@ import com.example.course.models.dto.AuthorDto;
 
 public interface AuthorService {
 
-    Author saveAuthor(AuthorDto authorDto);
-    Author findAuthorByEmail(AuthorDto authorDto);
+    Author createAuthor(AuthorDto authorDto);
+    Author findAuthorByEmailOrCreate(AuthorDto authorDto);
+    Author findAuthorById(Long authorId);
 }

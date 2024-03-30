@@ -1,7 +1,6 @@
 package com.example.course.controller;
 
 import com.example.course.models.dto.CategoryDto;
-import com.example.course.models.dto.CourseDto;
 import com.example.course.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,19 +14,19 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    @GetMapping("/get/categories")
+    public ResponseEntity<?> findAllCategories() {
+        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getAllCategories());
+    }
+
     @PostMapping("/add/category")
     public ResponseEntity<?> addCategory(@RequestBody CategoryDto categoryData) {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.addCategory(categoryData));
     }
 
-    @GetMapping("/get/categories")
-    public ResponseEntity<?> getAllCategories() {
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getAllCategories());
-    }
-
     @GetMapping("/get/category")
-    public ResponseEntity<?> getCategoryById(@RequestParam("id") int id) {
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getCategoryById(id));
+    public ResponseEntity<?> findCategoryById(@RequestParam("id") int id) {
+        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getCategoryDtoById(id));
     }
 
     @DeleteMapping("/delete/category")

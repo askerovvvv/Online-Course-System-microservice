@@ -9,6 +9,7 @@ import com.example.course.service.AuthorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -21,20 +22,27 @@ public class AuthorServiceImpl implements AuthorService {
 
 
     @Override
-    public Author saveAuthor(AuthorDto authorDto) {
+    public Author createAuthor(AuthorDto authorDto) {
         Author authorFromDto = AuthorMapper.INSTANCE.toAuthor(authorDto);
+        authorFromDto.setCreatedAt(LocalDateTime.now());
+
         return authorRepository.save(authorFromDto);
     }
 
     @Override
-    public Author findAuthorByEmail(AuthorDto authorDto) {
+    public Author findAuthorByEmailOrCreate(AuthorDto authorDto) {
         Author authorFromDb = authorRepository.findAuthorByEmail(authorDto.getEmail());
 
         if (Objects.isNull(authorFromDb)) {
-            return saveAuthor(authorDto);
+            return createAuthor(authorDto);
         }
 
         return authorFromDb;
     }
 
+    @Override
+    public Author findAuthorById(Long authorId) {
+        return authorRepository.findById(authorId)
+                .orElseThrow(() -> new CustomBadRequestException("Author not found!"));
+    }
 }

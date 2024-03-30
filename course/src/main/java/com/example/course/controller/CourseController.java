@@ -14,24 +14,24 @@ public class CourseController {
 
     private final CourseService courseService;
 
+    @GetMapping("/get/courses")
+    public ResponseEntity<?> findAllCourses() {
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.findAllCourses());
+    }
+
     @PostMapping("/add/course")
     public ResponseEntity<?> addCourse(@RequestBody CourseDto courseData) {
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.addCourse(courseData));
     }
 
-    @GetMapping("/get/courses")
-    public ResponseEntity<?> getAllCourses() {
-        return ResponseEntity.status(HttpStatus.OK).body(courseService.getAllCourses());
-    }
-
     @GetMapping("/get/course")
-    public ResponseEntity<?> getCourseById(@RequestParam("id") Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(courseService.getCourseById(id));
+    public ResponseEntity<?> findCourseById(@RequestParam("id") Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.findCourseDtoById(id));
     }
 
     @DeleteMapping("/delete/course")
     public ResponseEntity<?> deleteCourseById(@RequestParam("id") Long id) {
-        courseService.deleteCourse(id);
+        courseService.deleteCourseById(id);
         return ResponseEntity.status(200).build();
     } // TODO: update
 
