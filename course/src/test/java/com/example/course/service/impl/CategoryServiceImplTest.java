@@ -2,7 +2,6 @@ package com.example.course.service.impl;
 
 import com.example.course.exceptions.NotFoundException;
 import com.example.course.models.Category;
-import com.example.course.models.Course;
 import com.example.course.models.dto.CategoryDto;
 import com.example.course.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,7 +76,7 @@ class CategoryServiceImplTest {
         when(categoryRepository.findById(any())).thenReturn(Optional.of(mockCategory));
 
         // When
-        CategoryDto actualResult = mockCategoryService.getCategoryById(1);
+        CategoryDto actualResult = mockCategoryService.getCategoryDtoById(1);
 
         // Then
         assertNotNull(actualResult);
@@ -90,7 +89,7 @@ class CategoryServiceImplTest {
         when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
         // Then
-        assertThrows(NotFoundException.class, () -> mockCategoryService.getCategoryById(1));
+        assertThrows(NotFoundException.class, () -> mockCategoryService.getCategoryDtoById(1));
     }
 
     @Test

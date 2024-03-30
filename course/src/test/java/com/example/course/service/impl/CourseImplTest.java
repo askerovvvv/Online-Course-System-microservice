@@ -3,10 +3,13 @@ package com.example.course.service.impl;
 import com.example.course.client.CourseUserClient;
 import com.example.course.exceptions.CustomBadRequestException;
 import com.example.course.exceptions.NotFoundException;
+import com.example.course.models.Author;
+import com.example.course.models.Category;
 import com.example.course.models.Course;
 import com.example.course.models.dto.CourseDto;
-import com.example.course.models.dto.UserDto;
+import com.example.course.models.dto.AuthorDto;
 import com.example.course.repository.CourseRepository;
+import com.example.course.service.AuthorService;
 import com.example.course.service.CategoryService;
 import com.example.course.service.CourseService;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +32,8 @@ class CourseImplTest {
     private CategoryService categoryService;
     @Mock
     private CourseUserClient courseUserClient;
+    @Mock
+    private AuthorService authorService;
 
     private CourseService mockCourseService;
     @BeforeEach
@@ -37,7 +42,8 @@ class CourseImplTest {
         mockCourseService = new CourseImpl(
                 courseRepository,
                 categoryService,
-                courseUserClient
+                courseUserClient,
+                authorService
         );
     }
 
@@ -60,25 +66,55 @@ class CourseImplTest {
 
 
     @Test
-    void getById() {
+    void testGetCourseById_Success() {
+        // Given
+        Course mockCourse = new Course();
 
+        // Mock action
+        when(courseRepository.findById(any())).thenReturn(Optional.of(mockCourse));
+
+        // When
+        CourseDto actualResult = mockCourseService.getCourseById(1L);
+
+        // Then
+        assertNotNull(actualResult);
+        assertInstanceOf(CourseDto.class, actualResult);
+    }
+
+    @Test
+    void testGetCourseById_Failed() {
+        // Mock action
+        when(courseRepository.findById(any())).thenReturn(Optional.empty());
+
+        // Then
+        assertThrows(NotFoundException.class, () -> mockCourseService.getCourseById(1L));
     }
 
     @Test
     void testAddCourse_Success() {
         // Given
         CourseDto mockCourseDto = new CourseDto();
-        UserDto mockUserDto = new UserDto();
-        mockUserDto.setEmailVerified(true);
+        mockCourseDto.setCategoryId(2);
+        mockCourseDto.setTeacherId(1L);
+
+        AuthorDto mockAuthorDto = new AuthorDto();
+        mockAuthorDto.setEmailVerified(true);
+
+        Category mockCategory = new Category();
 
         // Mock actions
-        when(courseUserClient.getUserById(any())).thenReturn(mockUserDto);
-        when(categoryService.ifCategoryExists(any())).thenReturn(true);
+        when(courseUserClient.getUserById(1L)).thenReturn(mockAuthorDto);
+        when(categoryService.getCategoryById(2)).thenReturn(mockCategory);
+        when(authorService.findAuthorByEmail(mockAuthorDto)).thenReturn(new Author());
+        when(courseRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
         CourseDto actualResult = mockCourseService.addCourse(mockCourseDto);
 
         // Then
+        assertNotNull(actualResult);
+        assertEquals(mockCourseDto.getTeacherId(), actualResult.getTeacherId());
+        assertEquals(mockCourseDto.getCategoryId(), actualResult.getCategoryId());
         verify(courseRepository, times(1)).save(any(Course.class));
     }
 
@@ -86,11 +122,11 @@ class CourseImplTest {
     void testAddCourse_With_InactiveUser() {
         // Given
         CourseDto mockCourseDto = new CourseDto();
-        UserDto mockUserDto = new UserDto();
-        mockUserDto.setEmailVerified(false);
+        AuthorDto mockAuthorDto = new AuthorDto();
+        mockAuthorDto.setEmailVerified(false);
 
         // Mock actions
-        when(courseUserClient.getUserById(any())).thenReturn(mockUserDto);
+        when(courseUserClient.getUserById(any())).thenReturn(mockAuthorDto);
 
         // Then
         assertThrows(CustomBadRequestException.class, () -> mockCourseService.addCourse(mockCourseDto));
@@ -101,12 +137,13 @@ class CourseImplTest {
     void testAddCourse_With_CategoryNotExists() {
         // Given
         CourseDto mockCourseDto = new CourseDto();
-        UserDto mockUserDto = new UserDto();
-        mockUserDto.setEmailVerified(true);
+        mockCourseDto.setCategoryId(2);
+        AuthorDto mockAuthorDto = new AuthorDto();
+        mockAuthorDto.setEmailVerified(true);
 
         // Mock actions
-        when(courseUserClient.getUserById(any())).thenReturn(mockUserDto);
-        when(categoryService.ifCategoryExists(any())).thenReturn(false);
+        when(courseUserClient.getUserById(any())).thenReturn(mockAuthorDto);
+        when(categoryService.getCategoryById(any(Integer.class))).thenThrow(NotFoundException.class);
 
         // Then
         assertThrows(NotFoundException.class, () -> mockCourseService.addCourse(mockCourseDto));
