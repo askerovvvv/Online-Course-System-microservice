@@ -1,4 +1,4 @@
-package com.example.auth.models.dto;
+package com.example.auth.models.requestsDto;
 
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;

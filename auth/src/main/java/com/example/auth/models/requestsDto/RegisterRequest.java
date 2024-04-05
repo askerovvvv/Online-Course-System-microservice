@@ -1,6 +1,6 @@
-package com.example.auth.models.dto;
+package com.example.auth.models.requestsDto;
 
-import jakarta.validation.constraints.Email;
+import com.example.auth.models.requestsDto.BaseAuthRequest;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
