@@ -24,15 +24,15 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.addCategory(categoryData));
     }
 
-    @GetMapping("/get/category")
+    @GetMapping("/get/category/by/id")
     public ResponseEntity<?> findCategoryById(@RequestParam("id") int id) {
         return ResponseEntity.status(HttpStatus.OK).body(categoryService.getCategoryDtoById(id));
     }
 
-    @DeleteMapping("/delete/category")
+    @DeleteMapping("/delete/category/by/id")
     public ResponseEntity<?> deleteCategoryById(@RequestParam("id") int id) {
         categoryService.deleteCategory(id);
-        return ResponseEntity.status(200).build();
+        return ResponseEntity.status(HttpStatus.OK).body("Course deleted successfully.");
     } // TODO: update
 
 }

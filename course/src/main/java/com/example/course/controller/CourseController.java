@@ -24,14 +24,14 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.addCourse(courseData));
     }
 
-    @GetMapping("/get/course")
-    public ResponseEntity<?> findCourseById(@RequestParam("id") Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(courseService.findCourseDtoById(id));
+    @GetMapping("/get/course/by/id")
+    public ResponseEntity<?> findCourseById(@RequestParam("courseId") Long courseId) {
+        return ResponseEntity.status(HttpStatus.OK).body(courseService.findCourseDtoById(courseId));
     }
 
     @DeleteMapping("/delete/course")
-    public ResponseEntity<?> deleteCourseById(@RequestParam("id") Long id) {
-        courseService.deleteCourseById(id);
+    public ResponseEntity<?> deleteCourseById(@RequestParam("courseId") Long courseId) {
+        courseService.deleteCourseById(courseId);
         return ResponseEntity.status(200).build();
     } // TODO: update
 
