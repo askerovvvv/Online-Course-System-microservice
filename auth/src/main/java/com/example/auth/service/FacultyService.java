@@ -7,9 +7,9 @@ import com.example.auth.models.responsesDto.FacultyResponseDto;
 import java.util.List;
 
 public interface FacultyService {
-    void addFaculty(FacultyRequestDto facultyRequestData);
-
     List<FacultyResponseDto> findAllFaculties();
+
+    void addFaculty(FacultyRequestDto facultyRequestData);
 
     FacultyResponseDto findFacultyDtoById(Integer facultyId);
     Faculty findFacultyById(Integer facultyId);

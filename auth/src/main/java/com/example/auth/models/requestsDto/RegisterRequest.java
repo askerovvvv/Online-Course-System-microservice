@@ -22,10 +22,5 @@ public class RegisterRequest extends BaseAuthRequest {
     @Size(max = 30, message = "Lastname too long")
     String lastname;
 
-    @NotEmpty(message = "Password can not be empty.")
-    String password;
-
-    @NotEmpty(message = "The password confirmation field cannot be empty.")
-    String passwordConfirm;
 
 }
