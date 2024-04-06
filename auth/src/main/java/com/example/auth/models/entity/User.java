@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "user_")
 public class User implements UserDetails {
 
