@@ -1,7 +1,7 @@
 package com.example.auth.controller;
 
-import com.example.auth.models.dto.AuthenticationRequest;
-import com.example.auth.models.dto.RegisterRequest;
+import com.example.auth.models.requestsDto.AuthenticationRequest;
+import com.example.auth.models.requestsDto.RegisterRequest;
 import com.example.auth.service.AuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,10 +24,11 @@ public class AuthController {
             @RequestParam("user") String userJsonData
     ) {
         RegisterRequest userData;
+        System.out.println(userImage.getOriginalFilename().substring(0, userImage.getOriginalFilename().length()-4));
         try {
             userData = new ObjectMapper().readValue(userJsonData, RegisterRequest.class);
         } catch (JsonProcessingException e)  {
-            throw new RuntimeException(e); // TODO: change
+            throw new RuntimeException("+++++++++++++++" + e.getMessage()); // TODO: change
         }
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(authService.authRegister(userData, userImage));

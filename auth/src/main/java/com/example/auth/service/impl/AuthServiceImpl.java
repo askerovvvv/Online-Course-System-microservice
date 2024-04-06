@@ -2,26 +2,24 @@ package com.example.auth.service.impl;
 
 import com.example.auth.config.JwtService;
 import com.example.auth.exceptions.*;
-import com.example.auth.models.dto.AuthenticationRequest;
-import com.example.auth.models.dto.AuthenticationResponse;
-import com.example.auth.models.dto.RegisterRequest;
+import com.example.auth.models.requestsDto.AuthenticationRequest;
+import com.example.auth.models.responsesDto.AuthenticationResponse;
+import com.example.auth.models.requestsDto.RegisterRequest;
 import com.example.auth.models.entity.EmailVerificationToken;
 import com.example.auth.models.entity.Role;
 import com.example.auth.models.entity.User;
-import com.example.auth.repository.EmailVerificationRepository;
-import com.example.auth.repository.RoleRepository;
+import com.example.auth.models.entity.UserImage;
 import com.example.auth.repository.UserRepository;
-import com.example.auth.service.AuthService;
-import com.example.auth.service.EmailSender;
-import com.example.auth.service.EmailVerificationService;
-import com.example.auth.service.RoleService;
+import com.example.auth.service.*;
 import com.example.auth.validator.AuthValidator;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -36,18 +34,23 @@ public class AuthServiceImpl implements AuthService {
     private final RoleService roleService;
     private final EmailVerificationService verificationService;
     private final JwtService jwtService;
+    private final UserImageService userImageService;
 
     private final EmailSender emailSender;
     private final AuthValidator<RegisterRequest> registerValidator;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
+
+
     @Override
-    public String authRegister(RegisterRequest registerData) {
-        // TODO: complete all TODO, and other
+    @Transactional
+    public String authRegister(RegisterRequest registerData, MultipartFile userImageFile) {
         registerValidator.authRegisterValidate(registerData);
 
-        User user = createUser(registerData);
+
+        UserImage userImage = userImageService.uploadImage(userImageFile, registerData.getEmail());
+        User user = createUser(registerData, userImage);
         userRepository.save(user);
 
         EmailVerificationToken verificationToken = verificationService.createToken(user);
@@ -101,7 +104,9 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
-    private User createUser(RegisterRequest registerData) {
+    private User createUser(RegisterRequest registerData, UserImage userImage) {
+        // TODO: give role "INACTIVE", then work globally with users without "Inactive"
+
         Role role = roleService.getRoleByName("ROLE_USER");
 
         return User.builder()
@@ -111,6 +116,7 @@ public class AuthServiceImpl implements AuthService {
                 .role(new HashSet<>(List.of(role)))
                 .password(passwordEncoder.encode(registerData.getPassword()))
                 .emailVerified(false)
+                .userImage(userImage)
                 .build();
     }
 
