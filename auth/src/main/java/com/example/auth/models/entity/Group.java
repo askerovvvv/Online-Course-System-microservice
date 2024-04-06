@@ -3,6 +3,8 @@ package com.example.auth.models.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -27,4 +29,25 @@ public class Group {
 //    @JoinColumn
     private Faculty faculty;
 
+    @Override
+    public String toString() {
+        return "Group{" +
+                "id=" + id +
+                ", groupName='" + groupName + '\'' +
+                ", faculty=" + faculty +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Group group = (Group) o;
+        return Objects.equals(id, group.id) && Objects.equals(groupName, group.groupName) && Objects.equals(faculty, group.faculty);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, groupName, faculty);
+    }
 }
