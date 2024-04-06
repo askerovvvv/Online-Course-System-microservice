@@ -1,6 +1,7 @@
 package com.example.auth.models.requestsDto;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,9 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class GroupRequestDto {
+
     @NotEmpty(message = "The groupName cannot be empty")
-    @Size(max = 30, message = "groupName too long")
+    @Size(max = 15, message = "groupName too long")
     private String groupName;
 
+    @NotNull
     private Integer facultyId;
 }
