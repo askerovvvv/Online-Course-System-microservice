@@ -29,9 +29,15 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    public FacultyResponseDto findFacultyById(Integer facultyId) {
+    public FacultyResponseDto findFacultyDtoById(Integer facultyId) {
         return FacultyMapper.INSTANCE.toFacultyResponseDto(facultyRepository.findById(facultyId)
                 .orElseThrow(() -> new NotFoundException("Faculty not found!")));
+    }
+
+    @Override
+    public Faculty findFacultyById(Integer facultyId) {
+        return facultyRepository.findById(facultyId)
+                .orElseThrow(() -> new NotFoundException("Faculty not found!"));
     }
 
     @Override

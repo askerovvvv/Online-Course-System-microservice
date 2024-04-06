@@ -1,5 +1,6 @@
 package com.example.auth.service;
 
+import com.example.auth.models.entity.Faculty;
 import com.example.auth.models.requestsDto.FacultyRequestDto;
 import com.example.auth.models.responsesDto.FacultyResponseDto;
 
@@ -10,7 +11,8 @@ public interface FacultyService {
 
     List<FacultyResponseDto> findAllFaculties();
 
-    FacultyResponseDto findFacultyById(Integer facultyId);
+    FacultyResponseDto findFacultyDtoById(Integer facultyId);
+    Faculty findFacultyById(Integer facultyId);
 
     void deleteFacultyById(Integer facultyId);
 }
