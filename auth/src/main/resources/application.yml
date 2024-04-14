@@ -5,7 +5,6 @@ eureka:
       service-url:
         defaultZone: http://localhost:8761/eureka
 
-
 server:
   port: 8090
 spring:
@@ -14,6 +13,7 @@ spring:
 
   config:
     import: optional:configserver:http://localhost:8888
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/auth
@@ -25,3 +25,32 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+
+  mail:
+    host: smtp.googlemail.com
+    port: 587
+    username: bekbol.2019@gmail.com
+    password: "yvja jvfe jyjp hlll"
+    test-connection: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    sender:
+      email: a@gmail.com
+      text: someText
+  output:
+    ansi:
+      enabled: always
+
+
+
+
+
+
