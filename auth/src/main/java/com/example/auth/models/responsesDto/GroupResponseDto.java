@@ -15,4 +15,5 @@ public class GroupResponseDto {
     private Long id;
     private String groupName;
     private Integer facultyId;
+    private Integer numberOfStudents;
 }

@@ -3,6 +3,8 @@ package com.example.auth.models.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -29,6 +31,9 @@ public class Group {
 //    @JoinColumn
     private Faculty faculty;
 
+    @OneToMany(mappedBy="studentGroup", cascade = CascadeType.ALL)
+    private List<Student> studentsInGroup = new ArrayList<>();
+
     @Override
     public String toString() {
         return "Group{" +
@@ -43,11 +48,11 @@ public class Group {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Group group = (Group) o;
-        return Objects.equals(id, group.id) && Objects.equals(groupName, group.groupName) && Objects.equals(faculty, group.faculty);
+        return Objects.equals(id, group.id) && Objects.equals(groupName, group.groupName) && Objects.equals(faculty, group.faculty) && Objects.equals(studentsInGroup, group.studentsInGroup);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, groupName, faculty);
+        return Objects.hash(id, groupName, faculty, studentsInGroup);
     }
 }

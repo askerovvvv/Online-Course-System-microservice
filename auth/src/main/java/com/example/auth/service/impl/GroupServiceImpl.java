@@ -47,6 +47,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public GroupResponseDto findGroupById(Long groupId) {
+//        List<Group> groups = groupRepository.findAll();
+//        System.out.println(GroupMapper.INSTANCE.toGroupResponseByIdDto(groupRepository.findById(groupId).get()));
         return GroupMapper.INSTANCE.toGroupResponseDto(groupRepository.findById(groupId)
                 .orElseThrow(() -> new NotFoundException("Group not found!")));
     }
