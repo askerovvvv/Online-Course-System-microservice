@@ -3,17 +3,18 @@ package com.example.auth.service.impl;
 import com.example.auth.config.JwtService;
 import com.example.auth.exceptions.ConflictException;
 import com.example.auth.exceptions.NoLongerExistsException;
-import com.example.auth.models.dto.AuthenticationRequest;
-import com.example.auth.models.dto.AuthenticationResponse;
-import com.example.auth.models.dto.RegisterRequest;
+import com.example.auth.models.entity.UserImage;
+import com.example.auth.models.requestsDto.AuthenticationRequest;
+import com.example.auth.models.responsesDto.AuthenticationResponse;
+import com.example.auth.models.requestsDto.RegisterRequest;
 import com.example.auth.models.entity.EmailVerificationToken;
 import com.example.auth.models.entity.Role;
 import com.example.auth.models.entity.User;
-import com.example.auth.repository.EmailVerificationRepository;
 import com.example.auth.repository.UserRepository;
 import com.example.auth.service.EmailSender;
 import com.example.auth.service.EmailVerificationService;
 import com.example.auth.service.RoleService;
+import com.example.auth.service.UserImageService;
 import com.example.auth.validator.AuthValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,8 @@ class AuthServiceImplTest {
     private AuthValidator<RegisterRequest> registerValidator;
     @Mock
     private EmailSender emailSender;
+    @Mock
+    private UserImageService userImageService;
 
     private AuthServiceImpl mockAuthService;
 
@@ -59,6 +62,7 @@ class AuthServiceImplTest {
                 roleService,
                 verificationService,
                 jwtService,
+                userImageService,
                 emailSender,
                 registerValidator,
                 passwordEncoder,
@@ -77,22 +81,26 @@ class AuthServiceImplTest {
         Role mockRole = new Role();
         EmailVerificationToken mockVerificationToken = new EmailVerificationToken();
 
+        UserImage mockUserImage = new UserImage();
+
         User mockUser = User.builder()
                 .firstname("test name")
                 .email("test@example.com")
                 .emailVerified(false)
                 .role(new HashSet<>(List.of(mockRole)))
+                .userImage(mockUserImage)
                 .build();
 
 
         // Mock actions
+        when(userImageService.uploadImage(any(), anyString())).thenReturn(mockUserImage);
         when(roleService.getRoleByName(anyString())).thenReturn(mockRole);
         when(userRepository.save(any(User.class))).thenReturn(mockUser);
         when(verificationService.createToken(any(User.class))).thenReturn(mockVerificationToken);
         when(emailSender.buildEmail(anyString(), anyString())).thenReturn("someValue");
 
         // When
-        String actualResponse = mockAuthService.authRegister(registerData);
+        String actualResponse = mockAuthService.authRegister(registerData, null);
 
         // Then
         verify(userRepository, times(1)).save(mockUser);

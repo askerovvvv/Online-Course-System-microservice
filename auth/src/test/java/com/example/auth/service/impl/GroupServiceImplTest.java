@@ -50,9 +50,11 @@ class GroupServiceImplTest {
         // Given
         List<GroupResponseDto> mockGroupResponseDtos = new ArrayList<>();
         mockGroupResponseDtos.add(GroupResponseDto.builder()
+                .numberOfStudents(0)
                 .facultyId(1)
                 .build());
         mockGroupResponseDtos.add(GroupResponseDto.builder()
+                .numberOfStudents(0)
                 .facultyId(1)
                 .build());
 
@@ -62,9 +64,11 @@ class GroupServiceImplTest {
         List<Group> mockGroups = new ArrayList<>();
         mockGroups.add(Group.builder()
                 .faculty(mockFaculty)
+                .studentsInGroup(new ArrayList<>())
                 .build());
         mockGroups.add(Group.builder()
                 .faculty(mockFaculty)
+                .studentsInGroup(new ArrayList<>())
                 .build());
 
         // Mock actions
@@ -137,6 +141,7 @@ class GroupServiceImplTest {
 
         GroupResponseDto mockGroupResponseDto = new GroupResponseDto();
         mockGroupResponseDto.setFacultyId(1);
+        mockGroupResponseDto.setNumberOfStudents(0);
 
         // Mock actions
         when(groupRepository.findById(3L)).thenReturn(Optional.of(mockGroup));

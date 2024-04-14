@@ -2,7 +2,7 @@ package com.example.auth.validator;
 
 import com.example.auth.exceptions.CustomBadRequestException;
 import com.example.auth.exceptions.DefaultValidationException;
-import com.example.auth.models.dto.AuthenticationRequest;
+import com.example.auth.models.requestsDto.AuthenticationRequest;
 import com.example.auth.models.entity.User;
 import com.example.auth.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
