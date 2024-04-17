@@ -1,13 +1,14 @@
 package com.example.course.service.impl;
 
-import com.example.course.client.CourseUserClient;
+import com.example.course.client.CourseTeacherClient;
 import com.example.course.exceptions.CustomBadRequestException;
 import com.example.course.exceptions.NotFoundException;
 import com.example.course.models.Author;
 import com.example.course.models.Category;
 import com.example.course.models.Course;
+import com.example.course.models.requestsDto.AuthorRequestDto;
+import com.example.course.models.responsesDto.AuthorResponseDto;
 import com.example.course.models.responsesDto.CourseResponseDto;
-import com.example.course.models.responsesDto.AuthorDto;
 import com.example.course.models.requestsDto.CourseRequestDto;
 import com.example.course.repository.CourseRepository;
 import com.example.course.service.AuthorService;
@@ -32,7 +33,7 @@ class CourseServiceImplTest {
     @Mock
     private CategoryService categoryService;
     @Mock
-    private CourseUserClient courseUserClient;
+    private CourseTeacherClient courseTeacherClient;
     @Mock
     private AuthorService authorService;
 
@@ -43,7 +44,7 @@ class CourseServiceImplTest {
         mockCourseService = new CourseServiceImpl(
                 courseRepository,
                 categoryService,
-                courseUserClient,
+                courseTeacherClient,
                 authorService
         );
     }
@@ -104,8 +105,8 @@ class CourseServiceImplTest {
         mockCourseRequestDto.setCategoryId(2);
         mockCourseRequestDto.setAuthorId(1L);
 
-        AuthorDto mockAuthorDto = new AuthorDto();
-        mockAuthorDto.setEmailVerified(true);
+        AuthorResponseDto mockAuthorResponseDto = new AuthorResponseDto();
+        mockAuthorResponseDto.setEmailVerified(true);
 
         Category mockCategory = new Category();
         mockCategory.setId(2);
@@ -114,9 +115,9 @@ class CourseServiceImplTest {
         mockCourse.setCategory(mockCategory);
 
         // Mock actions
-        when(courseUserClient.getUserById(1L)).thenReturn(mockAuthorDto);
+        when(courseTeacherClient.getTeacherById(1L)).thenReturn(mockAuthorResponseDto);
         when(categoryService.getCategoryById(2)).thenReturn(mockCategory);
-        when(authorService.findAuthorByEmailOrCreate(mockAuthorDto)).thenReturn(new Author());
+        when(authorService.findAuthorByEmailOrCreate(mockAuthorResponseDto)).thenReturn(new Author());
         when(courseRepository.save(any())).thenReturn(mockCourse);
 //        when(courseRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -133,11 +134,11 @@ class CourseServiceImplTest {
     void testAddCourse_With_InactiveUser() {
         // Given
         CourseRequestDto mockCourseRequestDto = new CourseRequestDto();
-        AuthorDto mockAuthorDto = new AuthorDto();
-        mockAuthorDto.setEmailVerified(false);
+        AuthorResponseDto mockAuthorResponseDto = new AuthorResponseDto();
+        mockAuthorResponseDto.setEmailVerified(false);
 
         // Mock actions
-        when(courseUserClient.getUserById(any())).thenReturn(mockAuthorDto);
+        when(courseTeacherClient.getTeacherById(any())).thenReturn(mockAuthorResponseDto);
 
         // Then
         assertThrows(CustomBadRequestException.class, () -> mockCourseService.addCourse(mockCourseRequestDto));
@@ -149,11 +150,11 @@ class CourseServiceImplTest {
         // Given
         CourseRequestDto mockCourseRequestDto = new CourseRequestDto();
         mockCourseRequestDto.setCategoryId(2);
-        AuthorDto mockAuthorDto = new AuthorDto();
-        mockAuthorDto.setEmailVerified(true);
+        AuthorResponseDto mockAuthorResponseDto = new AuthorResponseDto();
+        mockAuthorResponseDto.setEmailVerified(true);
 
         // Mock actions
-        when(courseUserClient.getUserById(any())).thenReturn(mockAuthorDto);
+        when(courseTeacherClient.getTeacherById(any())).thenReturn(mockAuthorResponseDto);
         when(categoryService.getCategoryById(any(Integer.class))).thenThrow(NotFoundException.class);
 
         // Then
