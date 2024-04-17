@@ -1,6 +1,8 @@
 package com.example.auth.service.impl;
 
+import com.example.auth.models.entity.Teacher;
 import com.example.auth.service.EmailSender;
+import com.example.auth.service.TeacherService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,24 +14,27 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Service
 public class EmailSenderImpl implements EmailSender {
 
     private final JavaMailSender javaMailSender;
+    private final TeacherService teacherService;
 
     @Value("${spring.mail.sender.email}")
     private String senderEmail;
 
     @Override
     @Async
-    public void send(String to, String content) {
+    public void send(String to, String content, String subject) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
             helper.setText(content, true);
             helper.setTo(to);
-            helper.setSubject("Confirm account");
+            helper.setSubject(subject);
             helper.setFrom(senderEmail);
             javaMailSender.send(message);
 
@@ -37,6 +42,18 @@ public class EmailSenderImpl implements EmailSender {
             // TODO: logging
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    public void authorAddedToCourseMessage(Long teacherId, Long courseId) {
+        Teacher teacher = teacherService.findTeacherById(teacherId);
+
+        String courseUrl = "http://localhost:8020/api/v1/course/get/course/by/id?courseId=" + courseId;
+
+        if (!Objects.isNull(teacher)) {
+            send(teacher.getEmail(), courseUrl, "You are added like an author for a course");
+        }
+
     }
 
     @Override

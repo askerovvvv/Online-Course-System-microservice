@@ -9,7 +9,7 @@ import com.example.auth.models.entity.EmailVerificationToken;
 import com.example.auth.models.entity.Role;
 import com.example.auth.models.entity.User;
 import com.example.auth.models.entity.UserImage;
-import com.example.auth.repository.UserRepository;
+import com.example.auth.repository.AuthRepository;
 import com.example.auth.service.*;
 import com.example.auth.validator.AuthValidator;
 import jakarta.transaction.Transactional;
@@ -29,7 +29,7 @@ import java.util.List;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepository userRepository;
+    private final AuthRepository authRepository;
 
     private final RoleService roleService;
     private final EmailVerificationService verificationService;
@@ -51,11 +51,11 @@ public class AuthServiceImpl implements AuthService {
 
         UserImage userImage = userImageService.uploadImage(userImageFile, registerData.getEmail());
         User user = createUser(registerData, userImage);
-        userRepository.save(user);
+        authRepository.save(user);
 
         EmailVerificationToken verificationToken = verificationService.createToken(user);
         String link = "http://localhost:8090/api/v1/auth/confirm?token=" + verificationToken.getToken();
-        emailSender.send(registerData.getEmail(), emailSender.buildEmail(registerData.getFirstname(), link));
+        emailSender.send(registerData.getEmail(), emailSender.buildEmail(registerData.getFirstname(), link), "Confirm account");
 
         return "Registered";
     }
@@ -70,13 +70,13 @@ public class AuthServiceImpl implements AuthService {
 
         LocalDateTime expiresAt = verificationToken.getExpiresAt();
         if (expiresAt.isBefore(LocalDateTime.now())) {
-            userRepository.delete(verificationToken.getUser());
+            authRepository.delete(verificationToken.getUser());
             verificationService.deleteToken(verificationToken);
             throw new NoLongerExistsException("Token has already expired! Please register again.");
         }
 
         verificationService.setConfirmedAt(token);
-        userRepository.updateUserEmailVerified(verificationToken.getUser().getId());
+        authRepository.updateUserEmailVerified(verificationToken.getUser().getId());
 
         return "Your account has been successfully verified!";
     }
@@ -88,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
         } catch (BadCredentialsException exception) {
             throw new CustomBadRequestException("Wrong login or password!");
         }
-        User user = userRepository.findByEmail(authenticateData.getEmail())
+        User user = authRepository.findByEmail(authenticateData.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found!"));
         String jwtToken = jwtService.generateToken(user);
 
