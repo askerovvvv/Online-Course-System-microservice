@@ -1,6 +1,6 @@
 package com.example.course.service.impl;
 
-import com.example.course.client.CourseUserClient;
+import com.example.course.client.CourseTeacherClient;
 import com.example.course.exceptions.CustomBadRequestException;
 import com.example.course.exceptions.HttpRequestException;
 import com.example.course.exceptions.NotFoundException;
@@ -8,8 +8,9 @@ import com.example.course.mapper.CourseMapper;
 import com.example.course.models.Author;
 import com.example.course.models.Category;
 import com.example.course.models.Course;
+import com.example.course.models.responsesDto.AuthorResponseDto;
 import com.example.course.models.responsesDto.CourseResponseDto;
-import com.example.course.models.responsesDto.AuthorDto;
+import com.example.course.models.requestsDto.AuthorRequestDto;
 import com.example.course.models.requestsDto.CourseRequestDto;
 import com.example.course.repository.CourseRepository;
 import com.example.course.service.AuthorService;
@@ -28,7 +29,7 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final CategoryService categoryService;
-    private final CourseUserClient courseUserClient;
+    private final CourseTeacherClient courseTeacherClient;
     private final AuthorService authorService;
 
     // TODO: send email(something added/ deleted to all authors of courses ot students)
@@ -42,16 +43,19 @@ public class CourseServiceImpl implements CourseService {
     public CourseResponseDto addCourse(CourseRequestDto courseData) {
         // TODO:  в запросе передать Principal principal
         try {
-            AuthorDto authorDto = courseUserClient.getUserById(courseData.getAuthorId());
-            if (!authorDto.getEmailVerified()) {
+//            AuthorRequestDto authorRequestDto = courseTeacherClient.getTeacherById(courseData.getAuthorId());
+            AuthorResponseDto authorResponseDto = courseTeacherClient.getTeacherById(courseData.getAuthorId());
+
+            if (!authorResponseDto.getEmailVerified()) {
                 throw new CustomBadRequestException("The user you specified as a teacher is inactive!");
             }
 
             Category category = categoryService.getCategoryById(courseData.getCategoryId());
-            Author author = authorService.findAuthorByEmailOrCreate(authorDto);
+            Author author = authorService.findAuthorByEmailOrCreate(authorResponseDto);
             Course course = createCourse(courseData, author, category);
 
             courseRepository.save(course);
+            courseTeacherClient.sendMailToAuthor(courseData.getAuthorId(), course.getId());
             return CourseMapper.INSTANCE.toCourseDto(course);
         } catch (FeignException e) {
             // TODO: обработать нормально

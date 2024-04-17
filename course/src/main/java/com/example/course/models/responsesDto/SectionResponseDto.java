@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class SectionResponseDto {
-    private Long sectionId;
+    private Long id;
     private Long courseId;
     private String title;
     private int sectionOrder;

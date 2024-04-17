@@ -24,17 +24,12 @@ public class SectionServiceImpl implements SectionService {
     @Override
     public void addSection(SectionRequestDto sectionData) {
         Course course = courseService.findCourseById(sectionData.getCourseId());
-
         // TODO: get Principal and check if Principal is author of course
 
-        Section section = Section.builder()
-                .title(sectionData.getTitle())
-                .sectionOrder(sectionData.getSectionOrder())
-                .course(course)
-                .build();
+        Section section = SectionMapper.INSTANCE.toSection(sectionData);
+        section.setCourse(course);
 
         sectionRepository.save(section);
-
     }
 
     @Override

@@ -1,7 +1,9 @@
 package com.example.course.mapper;
 
 import com.example.course.models.Section;
-import com.example.course.models.responsesDto.SectionDto;
+import com.example.course.models.requestsDto.SectionRequestDto;
+import com.example.course.models.responsesDto.SectionResponseDto;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -13,10 +15,14 @@ import java.util.List;
 public interface SectionMapper {
 
     SectionMapper INSTANCE = Mappers.getMapper(SectionMapper.class);
-    @Mapping(target = "courseId", source = "section", qualifiedByName = "getCourseId")
-    SectionDto toSectionDto(Section section);
 
-    List<SectionDto> toSectionDtos(List<Section> sections);
+    Section toSection(SectionRequestDto sectionRequestDto);
+
+    @InheritConfiguration
+    @Mapping(target = "courseId", source = "section", qualifiedByName = "getCourseId")
+    SectionResponseDto toSectionDto(Section section);
+
+    List<SectionResponseDto> toSectionDtos(List<Section> sections);
 
     @Named("getCourseId")
     default Long getCourseId(Section section) {
